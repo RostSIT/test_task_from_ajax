@@ -42,3 +42,6 @@ class CheckQr:
     @staticmethod
     def send_error(error: str):
         return error
+
+x = CheckQr()
+print(x.check_len_color("123"))
