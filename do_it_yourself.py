@@ -1,14 +1,9 @@
-import re
 
 
 def reader(filename):
-    count = 0
     list_success_devices = {}
     list_fail_devices = []
     with open(filename) as f:
-        # log = f.readline()
-
-        # regexp = re.findall(r'02', log, re.I)
 
         for line in f:
 
@@ -25,15 +20,14 @@ def reader(filename):
                         list_fail_devices.append(st[2])
 
         for key in list_fail_devices:
-            # print(key)
             if key in list_success_devices:
                 del list_success_devices[key]
-                # print(key)
-
-
-
-    print(f'Device {list_success_devices} status {list_fail_devices} \n fail {list_fail_devices}')
-    # print(log)
+        print(f'__________________Failed test {len(list_fail_devices)}_________________')
+        for i in list_fail_devices:
+            print(f'Device {i} was removed')
+        print(f'__________________Failed test {len(list_success_devices)}_________________')
+        for key, value in list_success_devices.items():
+            print(f'Device {key} sent {value} statuses')
 
 
 if __name__ == '__main__':
