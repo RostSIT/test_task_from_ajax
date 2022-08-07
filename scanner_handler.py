@@ -36,11 +36,11 @@ class CheckQr:
 
     @staticmethod
     def can_add_device(message: str):
-        return print(f'-----can_add_device--{message}')
+        return message
 
     @staticmethod
     def send_error(error: str):
-        return print(f'-----send_error--{error}')
+        return error
 
 
 #

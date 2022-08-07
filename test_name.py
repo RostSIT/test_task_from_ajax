@@ -58,6 +58,17 @@ def valid_qr_length(counting_point, right_most_digit):
         obj.check_scanned_device(length)
 
 
+def can_add_device_mock(counting_point, right_most_digit):
+    with mock.patch.object(CheckQr, 'can_add_device', new=new_send_error):
+        valid_qr_length(counting_point, right_most_digit)
+        assert m_error[0] == f"hallelujah {length}", f"{m_error} this is not 'hallelujah' message"
+
+
+def can_add_device_mock_not_in_db(counting_point, right_most_digit):
+    with mock.patch.object(CheckQr, 'send_error', new=new_send_error):
+        invalid_qr_length(counting_point, right_most_digit)
+
+
 def test_red_color():
     color(100, 999, red)
 
@@ -76,18 +87,6 @@ def test_negative_color_testing():
 
 def test_send_error():  # Test 'Error: Wrong qr length' message
     send_error_mock(10, 20, 'send_error')
-
-
-def can_add_device_mock(counting_point, right_most_digit):
-    with mock.patch.object(CheckQr, 'can_add_device', new=new_send_error):
-        valid_qr_length(counting_point, right_most_digit)
-        assert m_error[0] == f"hallelujah {length}", f"{m_error} this is not 'hallelujah' message"
-
-
-def can_add_device_mock_not_in_db(counting_point, right_most_digit):
-    with mock.patch.object(CheckQr, 'send_error', new=new_send_error):
-        invalid_qr_length(counting_point, right_most_digit)
-        assert m_error[0] == f"Not in DB", f"{m_error} this is not 'Not in DB' message"
 
 
 def test_can_add_device():  # Test 'hallelujah' message
