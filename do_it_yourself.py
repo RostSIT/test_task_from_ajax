@@ -4,9 +4,7 @@ def reader(filename):
     list_success_devices = {}
     list_fail_devices = []
     with open(filename) as f:
-
         for line in f:
-
             if 'BIG' in line:
                 st = line.split(";")
                 if st[-2] == '02':
@@ -18,14 +16,13 @@ def reader(filename):
                 else:
                     if st[2] not in list_fail_devices:
                         list_fail_devices.append(st[2])
-
         for key in list_fail_devices:
             if key in list_success_devices:
                 del list_success_devices[key]
-        print(f'__________________Failed test {len(list_fail_devices)}_________________')
+        print(f'__________________Failed test {len(list_fail_devices)} devices_________________')
         for i in list_fail_devices:
             print(f'Device {i} was removed')
-        print(f'__________________Failed test {len(list_success_devices)}_________________')
+        print(f'__________________Success test {len(list_success_devices)} devices______________')
         for key, value in list_success_devices.items():
             print(f'Device {key} sent {value} statuses')
 

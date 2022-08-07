@@ -1,4 +1,3 @@
-
 class CheckQr:
     def __init__(self):
         self.color = None
@@ -21,11 +20,11 @@ class CheckQr:
             self.check_out(not self.check_len_color(qr), lambda: [
                 self.send_error(f"Error: Wrong qr length {len(qr)}")
             ]
-                     ),
+                           ),
             self.check_out(not self.check_in_db(qr), lambda: [
                 self.send_error("Not in DB")
             ]
-                     )
+                           )
         ]
 
     def check_scanned_device(self, qr: str):
@@ -37,11 +36,18 @@ class CheckQr:
 
     @staticmethod
     def can_add_device(message: str):
-        return message
+        return print(f'-----can_add_device--{message}')
 
     @staticmethod
     def send_error(error: str):
-        return error
+        return print(f'-----send_error--{error}')
 
-x = CheckQr()
-print(x.check_len_color("123"))
+
+#
+# x = CheckQr()
+# print(x.check_scanned_device("-"))
+# print()
+# print(type(x.check_scanned_device("-")))
+# print()
+# print(x.check_scanned_device('123'))
+# print(type(x.check_scanned_device('12345678')))

@@ -1,40 +1,103 @@
 from scanner_handler import CheckQr
-from faker import Faker
 import mock
-import pytest
+import random
+
+red = 'Red'
+green = 'Green'
+fw = 'Fuzzy Wuzzy'
 
 
-def new_loaddata(cls, *args, **kwargs):
-    # Your custom testing override
+def qr(counting_point, right_most_digit):
+    q = random.randint(counting_point, right_most_digit)
+    return q
+
+
+def new_check_in_db_for_test_color(cls, *args, **kwargs):
     return True
 
 
-def test_SomeProductionProcess():
-    with mock.patch.object(CheckQr, 'check_in_db', new=new_loaddata):
+def new_check_in_db_for_invalid_qr_length(cls, *args, **kwargs):
+    return False
+
+
+def new_send_error(cls, *args, **kwargs):
+    global m_error
+    m_error = args
+
+    return m_error
+
+
+def send_error_mock(counting_point, right_most_digit, method):
+    with mock.patch.object(CheckQr, method, new=new_send_error):
+        invalid_qr_length(counting_point, right_most_digit)
+        assert m_error[
+                   0] == f"Error: Wrong qr length {len(str(counting_point))}", f"{m_error} - this is not error message"
+
+
+def test_send_error():  # Test 'Error: Wrong qr length' message
+    send_error_mock(10, 20, 'send_error')
+    print(f'-----------test_send_error--{m_error[0]}')
+
+
+def can_add_device_mock(counting_point, right_most_digit):
+    with mock.patch.object(CheckQr, 'can_add_device', new=new_send_error):
+        valid_qr_length(counting_point, right_most_digit)
+        assert m_error[0] == f"hallelujah {length}", f"{m_error} this is not 'hallelujah' message"
+
+
+def can_add_device_mock_not_in_db(counting_point, right_most_digit):
+    with mock.patch.object(CheckQr, 'send_error', new=new_send_error):
+        invalid_qr_length(counting_point, right_most_digit)
+        assert m_error[0] == f"Not in DB", f"{m_error} this is not 'Not in DB' message"
+
+
+def test_can_add_device():  # Test 'hallelujah' message
+    can_add_device_mock(100, 200)
+    print(f'-----------test_can_add_device--{m_error[0]}')
+
+
+def test_can_add_device_not_in_db():  # Test'Not in DB' message
+    print(f'---------1--test_can_add_device_not_in_db--{m_error}')
+    can_add_device_mock_not_in_db(100, 200)
+    print(f'---------2--test_can_add_device_not_in_db--{m_error}')
+    assert m_error[0] == "Not in DB", f"this is not 'Not in DB'message"
+
+
+def color(counting_point, right_most_digit, col):
+    with mock.patch.object(CheckQr, 'check_in_db', new=new_check_in_db_for_test_color):
+        length = str(qr(counting_point, right_most_digit))
         obj = CheckQr()
-        a = obj.check_in_db(qr='123')
-        assert a == True, "a = False"
+        obj.check_scanned_device(length)
+        assert obj.color == col, f"Length {length} != {col}"
 
 
-def qr(qrl):
-    fake = Faker()
-    red_qr = fake.password(qrl)
-    return red_qr
+def invalid_qr_length(counting_point, right_most_digit):
+    with mock.patch.object(CheckQr, 'check_in_db', new=new_check_in_db_for_invalid_qr_length):
+        length = str(qr(counting_point, right_most_digit))
+        obj = CheckQr()
+        obj.check_scanned_device(length)
+        assert obj.color == red or green or fw, f"Length is invalid for qr"
 
-print(qr(3))
+
 def test_red_color():
-    with mock.patch.object(CheckQr, 'check_in_db', new=new_loaddata):
-        r = "123"
-        obj = CheckQr()
-        obj.check_scanned_device(r)
-        assert obj.color == 'Red', f"Len {r} != Red"
-# print('\n', qr(3), '\n')
+    color(100, 999, red)
 
-# def test_Green_color(self):
-#     color_qr = self.check_scanned_device(qr(5))
-#     assert color_qr == 'Green'
-#
-#
-# def test_Fuzzy_Wuzzy_color(self):
-#     color_qr = self.check_scanned_device(qr(7))
-#     assert color_qr == 'Fuzzy Wuzzy'
+
+def test_green_color():
+    color(10000, 99999, green)
+
+
+def test_fw_color():
+    color(1000000, 9999999, fw)
+
+
+def test_negative_color_testing():
+    invalid_qr_length(10, 99)
+
+
+def valid_qr_length(counting_point, right_most_digit):
+    with mock.patch.object(CheckQr, 'check_in_db', new=new_check_in_db_for_test_color):
+        global length
+        length = str(qr(counting_point, right_most_digit))
+        obj = CheckQr()
+        obj.check_scanned_device(length)
