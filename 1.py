@@ -27,11 +27,19 @@ def new_send_error(cls, *args, **kwargs):
     return m_error
 
 
-def send_error_mock(counting_point, right_most_digit, method):
-    with mock.patch.object(CheckQr, method, new=new_send_error):
-        invalid_qr_length(counting_point, right_most_digit)
+def send_error_mock(counting_point, right_most_digit, method, new_method, method1, new_method1):
+    with mock.patch.object(CheckQr, method, new=new_method):
+        qr_length(counting_point, right_most_digit, method1, new_method1)
         assert m_error[0] == f"Error: Wrong qr length {len(str(counting_point))}", \
             f"{m_error} - this is not error message"
+
+
+def qr_length(counting_point, right_most_digit, method1, new_method1):
+    with mock.patch.object(CheckQr, method1, new=new_method1):
+        length = str(qr(counting_point, right_most_digit))
+        obj = CheckQr()
+        obj.check_scanned_device(length)
+        assert obj.color == red or green or fw, f"Length is invalid for qr"
 
 
 def color(counting_point, right_most_digit, col):
@@ -40,23 +48,6 @@ def color(counting_point, right_most_digit, col):
         obj = CheckQr()
         obj.check_scanned_device(length)
         assert obj.color == col, f"Length {length} != {col}"
-
-
-def invalid_qr_length(counting_point, right_most_digit):
-    with mock.patch.object(CheckQr, 'check_in_db', new=new_check_in_db_for_invalid_qr_length):
-        length = str(qr(counting_point, right_most_digit))
-        obj = CheckQr()
-        obj.check_scanned_device(length)
-        assert obj.color == red or green or fw, f"Length is invalid for qr"
-
-
-def valid_qr_length(counting_point, right_most_digit):
-    with mock.patch.object(CheckQr, 'check_in_db', new=new_check_in_db_for_test_color):
-        global length
-        length = str(qr(counting_point, right_most_digit))
-        obj = CheckQr()
-        obj.check_scanned_device(length)
-
 
 def can_add_device_mock(counting_point, right_most_digit):
     with mock.patch.object(CheckQr, 'can_add_device', new=new_send_error):
